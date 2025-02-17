@@ -30,6 +30,11 @@
       "code": 6000,
       "name": "DataTooLarge",
       "msg": "New message is too large for the allocated space."
+    },
+    {
+      "code": 6001,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds: Not enough lamports to complete account resizing."
     }
   ],
   "instructions": [

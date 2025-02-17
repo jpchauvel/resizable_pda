@@ -100,7 +100,7 @@ async def update_pda(program: Program, nonce: int, new_message: str) -> None:
         print(f"PDA Resized | Transaction: {tx_resize}")
 
         # Wait for confirmation before updating
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
 
     # Now, update the stored message
     tx_update = await program.rpc["update_data"](

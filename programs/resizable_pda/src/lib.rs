@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program::{self, CreateAccount, Transfer};
-use anchor_lang::solana_program::system_instruction;
 
 declare_id!("FEMohQcaSFUQ5tQ1povr5iUYB5NngZ5g6vCJy7ae9Nbo");
 
@@ -8,7 +7,6 @@ declare_id!("FEMohQcaSFUQ5tQ1povr5iUYB5NngZ5g6vCJy7ae9Nbo");
 pub mod resizable_pda {
     use super::*;
 
-    /// Creates a new PDA account with an initial message.
     pub fn create_account(ctx: Context<CreatePDA>, nonce: u64, message: String) -> Result<()> {
         let pda = &mut ctx.accounts.pda_account;
         pda.authority = ctx.accounts.user.key();
@@ -19,18 +17,55 @@ pub mod resizable_pda {
         Ok(())
     }
 
-    /// Resizes the PDA's data buffer.
     pub fn resize_account(ctx: Context<ResizePDA>, new_size: u64) -> Result<()> {
-        let pda = &mut ctx.accounts.pda_account;
+        let account_info = &mut ctx.accounts.pda_account.to_account_info();
+        let old_size = account_info.try_data_len()? as u64;
+        let new_data_size = 8 + 32 + 8 + 4 + new_size as u64;
 
-        let old_size = pda.data.len();
-        pda.data.resize(new_size as usize, 0);
+        let rent = Rent::get()?;
+        let new_minimum_balance = rent.minimum_balance(new_data_size as usize);
 
+        if new_data_size > old_size {
+            let required_lamports = new_minimum_balance.saturating_sub(account_info.lamports());
+            
+            // Log current balances for inspection
+            msg!("Current Authority Lamports: {}", ctx.accounts.authority.lamports());
+            msg!("Current PDA Account Lamports: {}", account_info.lamports());
+            msg!("Required for resize: {}", required_lamports);
+
+            if required_lamports > 0 {
+                require!(
+                    ctx.accounts.authority.lamports() >= required_lamports,
+                    ErrorCode::InsufficientFunds
+                );
+
+                let cpi_accounts = Transfer {
+                    from: ctx.accounts.authority.to_account_info(),
+                    to: account_info.clone(),
+                };
+                let cpi_context = CpiContext::new(ctx.accounts.system_program.to_account_info(), cpi_accounts);
+                system_program::transfer(cpi_context, required_lamports)?;
+
+                msg!("After transfer Authority Lamports: {}", ctx.accounts.authority.lamports());
+                msg!("After transfer PDA Account Lamports: {}", account_info.lamports());
+            }
+        } else if new_data_size < old_size {
+            // Resize smaller, refunding lamports
+            let refund = account_info.lamports().saturating_sub(new_minimum_balance);
+            **ctx.accounts.authority.try_borrow_mut_lamports()? += refund;
+            **account_info.try_borrow_mut_lamports()? -= refund;
+            msg!("Decreasing size, refunding lamports: {}", refund);
+        }
+
+        account_info.realloc(new_data_size as usize, false)?;
+
+        let pda_data = &mut &mut ctx.accounts.pda_account.data;
+        pda_data.resize(new_size as usize, 0);
+        
         msg!("Resized PDA from {} to {} bytes", old_size, new_size);
         Ok(())
     }
 
-    /// Updates the PDA's stored message.
     pub fn update_data(ctx: Context<UpdatePDA>, new_message: String) -> Result<()> {
         let pda = &mut ctx.accounts.pda_account;
         let new_data = new_message.into_bytes();
@@ -66,7 +101,10 @@ pub struct ResizePDA<'info> {
     #[account(mut, has_one = authority)]
     pub pda_account: Account<'info, PDAAccount>,
 
+    #[account(mut)]
     pub authority: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
@@ -88,4 +126,6 @@ pub struct PDAAccount {
 pub enum ErrorCode {
     #[msg("New message is too large for the allocated space.")]
     DataTooLarge,
+    #[msg("Insufficient funds: Not enough lamports to complete account resizing.")]
+    InsufficientFunds,
 }

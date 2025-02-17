@@ -127,3 +127,5 @@ poetry run ./app.py "Hello Wolrd!" --nonce 1
 
 ~~**Note:** Be sure to use a different nonce each time you run the program (the
 program's resizing function doesn't work yet).~~
+
+**Note:** Size changes are made in increments of up to 10 kB.

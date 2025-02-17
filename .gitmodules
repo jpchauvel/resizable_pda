@@ -1,0 +1,3 @@
+[submodule "idl-converter"]
+	path = idl-converter
+	url = git@github.com:jpchauvel/idl-converter.git

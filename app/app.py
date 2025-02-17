@@ -92,6 +92,7 @@ async def update_pda(program: Program, nonce: int, new_message: str) -> None:
                 accounts={
                     "pda_account": pda,
                     "authority": program.provider.wallet.public_key,
+                    "system_program": SYSTEM_PROGRAM_ID,  # System Program ID
                 },
                 signers=[user],
             ),

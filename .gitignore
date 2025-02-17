@@ -1,0 +1,15 @@
+.anchor
+.DS_Store
+**/*.rs.bk
+node_modules
+dist
+build
+test-ledger
+.yarn
+target/.rustc_info.json
+target/debug
+target/deploy
+target/release
+target/sbf-solana-solana
+target/types
+

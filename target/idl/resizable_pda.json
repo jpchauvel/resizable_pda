@@ -1,0 +1,139 @@
+{
+  "version": "0.29.0",
+  "name": "resizable_pda",
+  "address": "FEMohQcaSFUQ5tQ1povr5iUYB5NngZ5g6vCJy7ae9Nbo",
+  "description": "Created with Anchor",
+  "accounts": [
+    {
+      "name": "PDAAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "DataTooLarge",
+      "msg": "New message is too large for the allocated space."
+    }
+  ],
+  "instructions": [
+    {
+      "name": "create_account",
+      "discriminator": [
+        99,
+        20,
+        130,
+        119,
+        196,
+        235,
+        131,
+        149
+      ],
+      "accounts": [
+        {
+          "name": "pda_account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "system_program",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "resize_account",
+      "discriminator": [
+        89,
+        215,
+        202,
+        211,
+        3,
+        206,
+        175,
+        157
+      ],
+      "accounts": [
+        {
+          "name": "pda_account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_size",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_data",
+      "discriminator": [
+        62,
+        209,
+        63,
+        231,
+        204,
+        93,
+        148,
+        123
+      ],
+      "accounts": [
+        {
+          "name": "pda_account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_message",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

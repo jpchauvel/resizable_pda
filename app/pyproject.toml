@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "smart_contract_echo"
+version = "0.1.0"
+description = "A small Python app that calls a Solana Program"
+authors = ["Jean-Pierre Chauvel <jean.p.chauvel@gmail.com>"]
+license = "CC0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+anchorpy = {extras = ["cli", "pytest"], version = "^0.20.1"}
+flet = "^0.26.0"
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^6.0.0"
+
+[tool.black]
+line-length = 79
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

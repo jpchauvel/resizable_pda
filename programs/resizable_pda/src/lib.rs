@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::system_program::{self, CreateAccount, Transfer};
+use anchor_lang::system_program::{self, Transfer};
 
 declare_id!("FEMohQcaSFUQ5tQ1povr5iUYB5NngZ5g6vCJy7ae9Nbo");
 
@@ -13,7 +13,10 @@ pub mod resizable_pda {
         pda.nonce = nonce;
         pda.data = message.into_bytes(); // Store the message in data
 
-        msg!("Created PDA with message: {}", String::from_utf8_lossy(&pda.data));
+        msg!(
+            "Created PDA with message: {}",
+            String::from_utf8_lossy(&pda.data)
+        );
         Ok(())
     }
 
@@ -27,9 +30,12 @@ pub mod resizable_pda {
 
         if new_data_size > old_size {
             let required_lamports = new_minimum_balance.saturating_sub(account_info.lamports());
-            
+
             // Log current balances for inspection
-            msg!("Current Authority Lamports: {}", ctx.accounts.authority.lamports());
+            msg!(
+                "Current Authority Lamports: {}",
+                ctx.accounts.authority.lamports()
+            );
             msg!("Current PDA Account Lamports: {}", account_info.lamports());
             msg!("Required for resize: {}", required_lamports);
 
@@ -43,11 +49,18 @@ pub mod resizable_pda {
                     from: ctx.accounts.authority.to_account_info(),
                     to: account_info.clone(),
                 };
-                let cpi_context = CpiContext::new(ctx.accounts.system_program.to_account_info(), cpi_accounts);
+                let cpi_context =
+                    CpiContext::new(ctx.accounts.system_program.to_account_info(), cpi_accounts);
                 system_program::transfer(cpi_context, required_lamports)?;
 
-                msg!("After transfer Authority Lamports: {}", ctx.accounts.authority.lamports());
-                msg!("After transfer PDA Account Lamports: {}", account_info.lamports());
+                msg!(
+                    "After transfer Authority Lamports: {}",
+                    ctx.accounts.authority.lamports()
+                );
+                msg!(
+                    "After transfer PDA Account Lamports: {}",
+                    account_info.lamports()
+                );
             }
         } else if new_data_size < old_size {
             // Resize smaller, refunding lamports
@@ -61,7 +74,7 @@ pub mod resizable_pda {
 
         let pda_data = &mut &mut ctx.accounts.pda_account.data;
         pda_data.resize(new_size as usize, 0);
-        
+
         msg!("Resized PDA from {} to {} bytes", old_size, new_size);
         Ok(())
     }
@@ -73,7 +86,10 @@ pub mod resizable_pda {
         require!(new_data.len() <= pda.data.len(), ErrorCode::DataTooLarge);
         pda.data[..new_data.len()].copy_from_slice(&new_data);
 
-        msg!("Updated PDA with new message: {}", String::from_utf8_lossy(&pda.data));
+        msg!(
+            "Updated PDA with new message: {}",
+            String::from_utf8_lossy(&pda.data)
+        );
         Ok(())
     }
 }
@@ -89,10 +105,10 @@ pub struct CreatePDA<'info> {
         bump
     )]
     pub pda_account: Account<'info, PDAAccount>,
-    
+
     #[account(mut)]
     pub user: Signer<'info>,
-    
+
     pub system_program: Program<'info, System>,
 }
 

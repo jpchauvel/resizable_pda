@@ -56,12 +56,32 @@ solana airdrop 5
 If that fails, you can use the faucet at https://faucet.solana.com/ (Be sure to
 select `devnet`).
 
-## Deploy the Solana Program
+## Deploy the Solana Program (Optional)
 
 Ensure you're in the root directory of the project's repository:
 
 ```
 solana program deploy target/deploy/resizable_pda.so
+```
+
+## Use IDL Converter to Generate the Proper IDL Version (Optional)
+
+Go to the directory
+
+```sh
+cd idl-converter
+```
+
+Build the program
+
+```sh
+cargo build --relase
+```
+
+Run the conversion (the conversion is in-place)
+
+```sh
+./target/release/idl-converter ../target/idl/resizable_pda.json
 ```
 
 ## Testing the Program with anchorpy Client

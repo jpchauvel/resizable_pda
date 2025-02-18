@@ -3,6 +3,9 @@ members = [
     "programs/*"
 ]
 resolver = "2"
+exclude = [
+    "idl-converter"
+]
 
 [profile.release]
 overflow-checks = true

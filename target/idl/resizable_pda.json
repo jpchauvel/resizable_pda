@@ -1,8 +1,133 @@
 {
-  "version": "0.29.0",
+  "version": "0.1.0",
   "name": "resizable_pda",
-  "address": "FEMohQcaSFUQ5tQ1povr5iUYB5NngZ5g6vCJy7ae9Nbo",
-  "description": "Created with Anchor",
+  "instructions": [
+    {
+      "name": "create_account",
+      "accounts": [
+        {
+          "name": "pda_account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64",
+          "attrs": []
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "attrs": []
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 99,
+        "bytes": [
+          99,
+          20,
+          130,
+          119,
+          196,
+          235,
+          131,
+          149
+        ]
+      }
+    },
+    {
+      "name": "resize_account",
+      "accounts": [
+        {
+          "name": "pda_account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "new_size",
+          "type": "u64",
+          "attrs": []
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 89,
+        "bytes": [
+          89,
+          215,
+          202,
+          211,
+          3,
+          206,
+          175,
+          157
+        ]
+      }
+    },
+    {
+      "name": "update_data",
+      "accounts": [
+        {
+          "name": "pda_account",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "new_message",
+          "type": "string",
+          "attrs": []
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 62,
+        "bytes": [
+          62,
+          209,
+          63,
+          231,
+          204,
+          93,
+          148,
+          123
+        ]
+      }
+    }
+  ],
   "accounts": [
     {
       "name": "PDAAccount",
@@ -11,15 +136,43 @@
         "fields": [
           {
             "name": "authority",
-            "type": "publicKey"
+            "type": "publicKey",
+            "attrs": []
           },
           {
             "name": "nonce",
-            "type": "u64"
+            "type": "u64",
+            "attrs": []
           },
           {
             "name": "data",
-            "type": "bytes"
+            "type": "bytes",
+            "attrs": []
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "PDAAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey",
+            "attrs": []
+          },
+          {
+            "name": "nonce",
+            "type": "u64",
+            "attrs": []
+          },
+          {
+            "name": "data",
+            "type": "bytes",
+            "attrs": []
           }
         ]
       }
@@ -37,113 +190,8 @@
       "msg": "Insufficient funds: Not enough lamports to complete account resizing."
     }
   ],
-  "instructions": [
-    {
-      "name": "create_account",
-      "discriminator": [
-        99,
-        20,
-        130,
-        119,
-        196,
-        235,
-        131,
-        149
-      ],
-      "accounts": [
-        {
-          "name": "pda_account",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "system_program",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "nonce",
-          "type": "u64"
-        },
-        {
-          "name": "message",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "resize_account",
-      "discriminator": [
-        89,
-        215,
-        202,
-        211,
-        3,
-        206,
-        175,
-        157
-      ],
-      "accounts": [
-        {
-          "name": "pda_account",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "system_program",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "new_size",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "update_data",
-      "discriminator": [
-        62,
-        209,
-        63,
-        231,
-        204,
-        93,
-        148,
-        123
-      ],
-      "accounts": [
-        {
-          "name": "pda_account",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "new_message",
-          "type": "string"
-        }
-      ]
-    }
-  ]
+  "metadata": {
+    "origin": "anchor",
+    "address": "FEMohQcaSFUQ5tQ1povr5iUYB5NngZ5g6vCJy7ae9Nbo"
+  }
 }

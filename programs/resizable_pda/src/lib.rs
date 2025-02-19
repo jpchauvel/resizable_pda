@@ -84,7 +84,9 @@ pub mod resizable_pda {
         let new_data = new_message.into_bytes();
 
         require!(new_data.len() <= pda.data.len(), ErrorCode::DataTooLarge);
-        pda.data[..new_data.len()].copy_from_slice(&new_data);
+
+        pda.data.clear(); // Clear the existing data
+        pda.data.extend(new_data); // Add new data
 
         msg!(
             "Updated PDA with new message: {}",

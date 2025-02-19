@@ -10,11 +10,13 @@ from anchorpy.error import \
 from anchorpy.program.context import Context
 from anchorpy.program.core import Program
 from anchorpy.provider import Provider, Wallet
-from anchorpy.workspace import close_workspace, create_workspace
+from anchorpy.workspace import WorkspaceType, close_workspace, create_workspace
+from construct import Container
 from solana.constants import SYSTEM_PROGRAM_ID
 from solana.rpc.async_api import AsyncClient
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
+from solders.signature import Signature
 
 PROJECT_PATH: str = os.path.realpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -35,12 +37,14 @@ def load_user_keypair() -> Keypair:
 user: Keypair = load_user_keypair()
 
 
-async def derive_pda(
-    program: Program, nonce: int
-) -> Pubkey:
+async def derive_pda(program: Program, nonce: int) -> Pubkey:
     """Derives the PDA address using the seed, user pubkey, and nonce."""
     pda, _ = Pubkey.find_program_address(
-        [SEED_PREFIX, bytes(program.provider.wallet.public_key), nonce.to_bytes(8, "little")],
+        [
+            SEED_PREFIX,
+            bytes(program.provider.wallet.public_key),
+            nonce.to_bytes(8, "little"),
+        ],
         program.program_id,
     )
     return pda
@@ -50,7 +54,7 @@ async def create_pda(program: Program, nonce: int, message: str) -> None:
     """Creates a PDA account and stores the initial message."""
     pda: Pubkey = await derive_pda(program, nonce)
 
-    tx = await program.rpc["create_account"](
+    tx: Signature = await program.rpc["create_account"](
         nonce,
         message,
         ctx=Context(
@@ -75,7 +79,9 @@ async def update_pda(program: Program, nonce: int, new_message: str) -> None:
 
     # Fetch the current PDA account data
     try:
-        account = await program.account["PDAAccount"].fetch(pda)
+        account: Container[bytes] = await program.account["PDAAccount"].fetch(
+            pda
+        )
         current_size: int = len(account.data)
     except AccountDoesNotExistError:
         print(f"Error: PDA {pda} does not exist. Cannot update.")
@@ -86,7 +92,7 @@ async def update_pda(program: Program, nonce: int, new_message: str) -> None:
     # Resize the PDA only if the new message is larger than the current storage
     if new_size > current_size:
         print(f"Resizing PDA from {current_size} to {new_size} bytes...")
-        tx_resize = await program.rpc["resize_account"](
+        tx_resize: Signature = await program.rpc["resize_account"](
             new_size,
             ctx=Context(
                 accounts={
@@ -103,7 +109,7 @@ async def update_pda(program: Program, nonce: int, new_message: str) -> None:
         await asyncio.sleep(1)
 
     # Now, update the stored message
-    tx_update = await program.rpc["update_data"](
+    tx_update: Signature = await program.rpc["update_data"](
         new_message,
         ctx=Context(
             accounts={
@@ -125,8 +131,10 @@ async def update_pda(program: Program, nonce: int, new_message: str) -> None:
 async def get_pda_message(program: Program, pda: Pubkey) -> str | None:
     """Fetches the stored message from the PDA."""
     try:
-        account = await program.account["PDAAccount"].fetch(pda)
-        stored_message = (
+        account: Container[bytes] = await program.account["PDAAccount"].fetch(
+            pda
+        )
+        stored_message: str = (
             bytes(account.data).decode("utf-8").rstrip("\x00")
         )  # Decode and remove padding
         print(f"Retrieved PDA Message: {stored_message}")
@@ -152,10 +160,10 @@ async def check_and_create_or_update_pda(
         await update_pda(program, nonce, message)
 
 
-async def async_main(message: str, nonce: int):
+async def async_main(message: str, nonce: int) -> None:
     """Main function to handle Solana interactions."""
     # Load the Anchor program
-    workspace = create_workspace(PROJECT_PATH, url=DEVNET_URL)
+    workspace: WorkspaceType = create_workspace(PROJECT_PATH, url=DEVNET_URL)
     program: Program = workspace["resizable_pda"]
 
     # Check if PDA exists; create or update accordingly

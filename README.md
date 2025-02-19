@@ -17,7 +17,7 @@ curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/solana-d
 
 After installation you should see output similar to the following:
 
-```
+```sh
 Installed Versions:Rust: rustc 1.84.1 (e71f9a9a9 2025-01-27)Solana CLI:
 solana-cli 2.0.26 (src:3dccb3e7; feat:607245837, client:Agave)Anchor CLI:
 anchor-cli 0.30.1Node.js: v23.7.0Yarn: 1.22.1
@@ -49,7 +49,7 @@ solana-keygen pubkey ~/.config/solana/id.json
 
 Get some SOL:
 
-```
+```sh
 solana airdrop 5
 ```
 
@@ -58,9 +58,15 @@ select `devnet`).
 
 ## Deploy the Solana Program (Optional)
 
-Ensure you're in the root directory of the project's repository:
+Ensure you're in the root directory of the project's repository.
 
+Build the program:
+
+```sh
+anchor build
 ```
+
+```sh
 solana program deploy target/deploy/resizable_pda.so
 ```
 
